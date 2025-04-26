@@ -19,6 +19,10 @@ export interface SubliminalState {
   // Saved subliminals
   savedSubliminals: SavedSubliminal[]
   
+  // Recorded audio state
+  recordedAudio: Blob | null
+  mixedAudio: string | null
+  
   // Audio player actions
   togglePlayPause: () => void
   toggleMute: () => void
@@ -30,6 +34,10 @@ export interface SubliminalState {
   
   // Music actions
   selectMusic: (music: MusicTrack) => void
+  
+  // Recorded audio actions
+  setRecordedAudio: (audio: Blob | null) => void
+  mixAudio: () => void
   
   // Saved subliminals actions
   saveSubliminal: (name: string) => void
@@ -48,6 +56,8 @@ export const useSubliminalStore = create<SubliminalState>()(
       customAffirmations: '',
       selectedMusic: MUSIC_TRACKS[0],
       savedSubliminals: [],
+      recordedAudio: null,
+      mixedAudio: null,
 
       // Audio player actions
       togglePlayPause: () => set((state) => ({ isPlaying: !state.isPlaying })),
@@ -60,6 +70,20 @@ export const useSubliminalStore = create<SubliminalState>()(
 
       // Music actions
       selectMusic: (music) => set({ selectedMusic: music }),
+      
+      // Recorded audio actions
+      setRecordedAudio: (audio) => set({ recordedAudio: audio }),
+      mixAudio: () => set((state) => {
+        // In a real implementation, this would use the Web Audio API to mix the audio
+        // For now, we'll just simulate the mixing by creating a URL for the recorded audio
+        if (state.recordedAudio) {
+          // Create a URL for the recorded audio
+          // The Web Audio API can handle various formats including WAV, MP3, OGG, etc.
+          const audioUrl = URL.createObjectURL(state.recordedAudio);
+          return { mixedAudio: audioUrl };
+        }
+        return { mixedAudio: null };
+      }),
 
       // Saved subliminals actions
       saveSubliminal: (name) => set((state) => {
@@ -70,7 +94,7 @@ export const useSubliminalStore = create<SubliminalState>()(
           music: state.selectedMusic.id,
           affirmations: state.customAffirmations || state.selectedTemplate.affirmations.join('\n'),
           date: new Date().toISOString(),
-          hasRecordedAudio: false
+          hasRecordedAudio: !!state.recordedAudio
         }
         return { savedSubliminals: [...state.savedSubliminals, newSubliminal] }
       }),

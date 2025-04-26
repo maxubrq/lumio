@@ -1,16 +1,16 @@
 export default {
   "subliminal-maker": {
     "title": "Subliminal Maker",
-    "description": "Create powerful subliminal affirmations mixed with music",
+    "description": "Create powerful subliminal affirmations combined with music",
     "create-new": "Create New",
     "saved": "Saved",
-    "program-mind": "Program your mind, ignite your life.",
+    "program-mind": "Program your mind, illuminate your life.",
     "save-subliminal": "Save Subliminal",
     "processing": "Processing...",
     "subliminal": "Subliminal",
     "mix-save": "Mix & Save",
     "download-audio": "Download Audio",
-    "processing-note": "Note: In a real application, this would mix your affirmations with the selected music and create a downloadable audio file.",
+    "processing-note": "Note: In the actual app, this will mix your affirmations with the selected music and create a downloadable audio file.",
     "no-saved": "No Saved Subliminals",
     "create-first": "Create and save your first subliminal to see it here.",
     "your-saved": "Your Saved Subliminals",
@@ -36,6 +36,10 @@ export default {
     "delete-recording": "Delete",
     "mic-access-error": "Could not access microphone",
     "use-recorded-audio": "Use Recorded Audio",
-    "mix-with-music": "Mix with Music"
+    "mix-with-music": "Mix with Music",
+    "create-subliminal": "Create Subliminal",
+    "no-audio-to-mix": "No audio to mix",
+    "mix-success": "Subliminal created successfully!",
+    "mix-error": "Could not create subliminal"
   },
 } as const;

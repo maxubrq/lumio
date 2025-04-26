@@ -13,6 +13,10 @@ import { AudioRecorder } from "./subliminal/AudioRecorder";
 import { useI18n } from "@/locales/client";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { SubliminalProvider } from "./subliminal/SubliminalContext";
+import { useSubliminalStore } from "@/lib/state/subliminal-store";
+import { Button } from "@/components/ui/button";
+import { Wand2 } from "lucide-react";
+import { toast } from "sonner";
 
 /**
  * Tab values for the SubliminalMaker component
@@ -76,6 +80,11 @@ export default function SubliminalMaker() {
   const [activeTab, setActiveTab] = useState<TabValue>('create');
   const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
   const [isUsingRecordedAudio, setIsUsingRecordedAudio] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Get the mixAudio function from the store
+  const mixAudio = useSubliminalStore((state) => state.mixAudio);
+  const recordedAudioInStore = useSubliminalStore((state) => state.recordedAudio);
 
   /**
    * Handles the completion of audio recording
@@ -91,6 +100,31 @@ export default function SubliminalMaker() {
   const toggleUseRecordedAudio = useCallback(() => {
     setIsUsingRecordedAudio(prev => !prev);
   }, []);
+  
+  /**
+   * Handles the creation of a subliminal by mixing recorded audio with music
+   */
+  const handleCreateSubliminal = useCallback(() => {
+    if (!recordedAudioInStore) {
+      toast.error(t("subliminal-maker.no-audio-to-mix"));
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      // Simulate processing time
+      setTimeout(() => {
+        mixAudio();
+        setIsProcessing(false);
+        toast.success(t("subliminal-maker.mix-success"));
+      }, 1500);
+    } catch (error) {
+      setIsProcessing(false);
+      toast.error(t("subliminal-maker.mix-error"));
+      console.error("Error mixing audio:", error);
+    }
+  }, [mixAudio, recordedAudioInStore, t]);
 
   return (
     <SubliminalProvider>
@@ -224,11 +258,27 @@ export default function SubliminalMaker() {
               >
                 <MusicSelector />
               </motion.div>
-
+              
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
+                className="flex justify-center"
+              >
+                <Button
+                  onClick={handleCreateSubliminal}
+                  disabled={!recordedAudioInStore || isProcessing}
+                  className="bg-purple-500 hover:bg-purple-600 text-white border-4 border-black px-8 py-4 font-bold text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform"
+                >
+                  <Wand2 className="mr-2" />
+                  {isProcessing ? t("subliminal-maker.processing") : t("subliminal-maker.create-subliminal")}
+                </Button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
               >
                 <AudioPlayer />
               </motion.div>
@@ -236,7 +286,7 @@ export default function SubliminalMaker() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
               >
                 <SaveControls />
               </motion.div>

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Mic, Square, Play, Pause, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/locales/client";
+import { useSubliminalStore } from "@/lib/state/subliminal-store";
 
 interface AudioRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
@@ -20,6 +21,9 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
   const audioChunksRef = useRef<Blob[]>([]);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Get the setRecordedAudio function from the store
+  const setRecordedAudio = useSubliminalStore((state) => state.setRecordedAudio);
 
   const startRecording = async () => {
     try {
@@ -35,6 +39,8 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
       };
 
       mediaRecorder.onstop = () => {
+        // Create a blob with the recorded audio
+        // The Web Audio API can handle various formats including WAV, MP3, OGG, etc.
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
         const audioUrl = URL.createObjectURL(audioBlob);
         
@@ -45,6 +51,8 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
           audioPlayerRef.current = audioPlayer;
         }
         
+        // Set the recorded audio in the store
+        setRecordedAudio(audioBlob);
         onRecordingComplete(audioBlob);
         setHasRecording(true);
         setIsPlaying(false);
@@ -104,6 +112,8 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
     }
     setHasRecording(false);
     setIsPlaying(false);
+    // Clear the recorded audio in the store
+    setRecordedAudio(null);
     onRecordingComplete(new Blob());
   };
 
