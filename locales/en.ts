@@ -40,6 +40,9 @@ export default {
     "create-subliminal": "Create Subliminal",
     "no-audio-to-mix": "No audio to mix",
     "mix-success": "Subliminal created successfully!",
-    "mix-error": "Could not create subliminal"
+    "mix-error": "Could not create subliminal",
+    "mix-controls": "Mix Controls",
+    "gain": "Voice Gain",
+    "speed": "Voice Speed"
   },
 } as const;

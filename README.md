@@ -30,6 +30,11 @@ Lumio is a user-friendly web application that helps you create subliminal messag
 3. Adjust the volume and settings
 4. Preview and download your creation
 
+### COPYRIGHT
+#### Music
+- Ambient: [Sad Cinematic Documentary Music by Infraction [No Copyright Music] / Planet](https://www.youtube.com/watch?v=f53P31OWv_Y&list=PL7pkSK1xbGD58NZOk75bJ85IH-Hx-b7oQ)
+- Meditation: [Deep Theta Waves Healing Meditation | Royalty Free Meditation Music 432Hz](https://www.youtube.com/watch?v=HIo9voTXcDo&list=PLxgPkmNv1koLj6jMc8m4TmClfXxvKTcXW&index=2)
+- Nature Sound: [Free Nature Sounds - Nature Sounds Forest Birds (Free To Use Vlog Sound Effects)](https://www.youtube.com/watch?v=4CmzL-cv-MI&list=PLf-kQDdCmb1fM7l573YIK60Bg2VIrvb9F)
 ---
 
 ## Tiếng Việt
@@ -55,3 +60,9 @@ Lumio là một ứng dụng web thân thiện với người dùng giúp bạn 
 2. Thêm thông điệp tiềm thức
 3. Điều chỉnh âm lượng và cài đặt
 4. Xem trước và tải xuống tác phẩm của bạn
+
+### Bản Quyền
+#### Nhạc
+- Ambient: [Sad Cinematic Documentary Music by Infraction [No Copyright Music] / Planet](https://www.youtube.com/watch?v=f53P31OWv_Y&list=PL7pkSK1xbGD58NZOk75bJ85IH-Hx-b7oQ)
+- Meditation: [Deep Theta Waves Healing Meditation | Royalty Free Meditation Music 432Hz](https://www.youtube.com/watch?v=HIo9voTXcDo&list=PLxgPkmNv1koLj6jMc8m4TmClfXxvKTcXW&index=2)
+- Nature Sound: [Free Nature Sounds - Nature Sounds Forest Birds (Free To Use Vlog Sound Effects)](https://www.youtube.com/watch?v=4CmzL-cv-MI&list=PLf-kQDdCmb1fM7l573YIK60Bg2VIrvb9F)

@@ -40,6 +40,9 @@ export default {
     "create-subliminal": "Tạo Tiềm Thức",
     "no-audio-to-mix": "Chưa có âm thanh để trộn",
     "mix-success": "Đã tạo tiềm thức thành công!",
-    "mix-error": "Không thể tạo tiềm thức"
+    "mix-error": "Không thể tạo tiềm thức",
+    "mix-controls": "Điều Khiển Trộn",
+    "gain": "Âm Lượng Giọng",
+    "speed": "Tốc Độ Giọng"
   },
 } as const;

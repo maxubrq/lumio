@@ -23,6 +23,10 @@ export interface SubliminalState {
   recordedAudio: Blob | null
   mixedAudio: string | null
   
+  // Mix settings
+  gainValue: number
+  speedValue: number
+  
   // Audio player actions
   togglePlayPause: () => void
   toggleMute: () => void
@@ -37,7 +41,7 @@ export interface SubliminalState {
   
   // Recorded audio actions
   setRecordedAudio: (audio: Blob | null) => void
-  mixAudio: () => void
+  mixAudio: (gain?: number, speed?: number) => void
   
   // Saved subliminals actions
   saveSubliminal: (name: string) => void
@@ -58,6 +62,8 @@ export const useSubliminalStore = create<SubliminalState>()(
       savedSubliminals: [],
       recordedAudio: null,
       mixedAudio: null,
+      gainValue: 0,
+      speedValue: 1,
 
       // Audio player actions
       togglePlayPause: () => set((state) => ({ isPlaying: !state.isPlaying })),
@@ -73,16 +79,29 @@ export const useSubliminalStore = create<SubliminalState>()(
       
       // Recorded audio actions
       setRecordedAudio: (audio) => set({ recordedAudio: audio }),
-      mixAudio: () => set((state) => {
+      mixAudio: (gain, speed) => set((state) => {
+        // Update the gain and speed values if provided
+        const newGain = gain !== undefined ? gain : state.gainValue;
+        const newSpeed = speed !== undefined ? speed : state.speedValue;
+        
         // In a real implementation, this would use the Web Audio API to mix the audio
+        // with the specified gain and speed settings
         // For now, we'll just simulate the mixing by creating a URL for the recorded audio
         if (state.recordedAudio) {
           // Create a URL for the recorded audio
           // The Web Audio API can handle various formats including WAV, MP3, OGG, etc.
           const audioUrl = URL.createObjectURL(state.recordedAudio);
-          return { mixedAudio: audioUrl };
+          return { 
+            mixedAudio: audioUrl,
+            gainValue: newGain,
+            speedValue: newSpeed
+          };
         }
-        return { mixedAudio: null };
+        return { 
+          mixedAudio: null,
+          gainValue: newGain,
+          speedValue: newSpeed
+        };
       }),
 
       // Saved subliminals actions

@@ -10,6 +10,7 @@ import { AudioPlayer } from "./subliminal/AudioPlayer";
 import { SaveControls } from "./subliminal/SaveControls";
 import { SavedSubliminalsList } from "./subliminal/SavedSubliminalsList";
 import { AudioRecorder } from "./subliminal/AudioRecorder";
+import { MixController } from "./subliminal/MixController";
 import { useI18n } from "@/locales/client";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { SubliminalProvider } from "./subliminal/SubliminalContext";
@@ -82,9 +83,11 @@ export default function SubliminalMaker() {
   const [isUsingRecordedAudio, setIsUsingRecordedAudio] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // Get the mixAudio function from the store
+  // Get the mixAudio function and values from the store
   const mixAudio = useSubliminalStore((state) => state.mixAudio);
   const recordedAudioInStore = useSubliminalStore((state) => state.recordedAudio);
+  const gainValue = useSubliminalStore((state) => state.gainValue);
+  const speedValue = useSubliminalStore((state) => state.speedValue);
 
   /**
    * Handles the completion of audio recording
@@ -115,7 +118,8 @@ export default function SubliminalMaker() {
     try {
       // Simulate processing time
       setTimeout(() => {
-        mixAudio();
+        // Pass the gain and speed values to the mixAudio function
+        mixAudio(gainValue, speedValue);
         setIsProcessing(false);
         toast.success(t("subliminal-maker.mix-success"));
       }, 1500);
@@ -124,7 +128,7 @@ export default function SubliminalMaker() {
       toast.error(t("subliminal-maker.mix-error"));
       console.error("Error mixing audio:", error);
     }
-  }, [mixAudio, recordedAudioInStore, t]);
+  }, [mixAudio, recordedAudioInStore, t, gainValue, speedValue]);
 
   return (
     <SubliminalProvider>
@@ -256,7 +260,18 @@ export default function SubliminalMaker() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <MusicSelector />
+                <MusicSelector previewDuration={30} />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <MixController 
+                  onGainChange={(value) => useSubliminalStore.getState().mixAudio(value, undefined)}
+                  onSpeedChange={(value) => useSubliminalStore.getState().mixAudio(undefined, value)}
+                />
               </motion.div>
               
               <motion.div

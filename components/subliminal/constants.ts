@@ -75,9 +75,9 @@ export const AFFIRMATION_TEMPLATES = {
 // Music tracks
 export const MUSIC_TRACKS = [
   {
-    id: "relaxing",
-    title: "Relaxing Ambient",
-    src: "/audio/relaxing-ambient.mp3",
+    id: "ambient",
+    title: "Ambient",
+    src: "/audio/ambient.mp3",
   },
   {
     id: "meditation",
@@ -87,7 +87,7 @@ export const MUSIC_TRACKS = [
   {
     id: "nature",
     title: "Nature Sounds",
-    src: "/audio/nature-sounds.mp3",
+    src: "/audio/nature-sound.mp3",
   },
 ];
 
