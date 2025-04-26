@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { motion } from "motion/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AffirmationSelector } from "./subliminal/AffirmationSelector";
 import { MusicSelector } from "./subliminal/MusicSelector";
@@ -13,87 +14,246 @@ import { useI18n } from "@/locales/client";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { SubliminalProvider } from "./subliminal/SubliminalContext";
 
+/**
+ * Tab values for the SubliminalMaker component
+ */
+type TabValue = 'create' | 'saved';
+
+/**
+ * Animation variants for the header elements
+ */
+const headerVariants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      duration: 0.5,
+      staggerChildren: 0.1
+    }
+  }
+};
+
+/**
+ * Animation variants for the logo elements
+ */
+const logoVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { 
+      type: 'spring',
+      stiffness: 300,
+      damping: 15
+    }
+  }
+};
+
+/**
+ * Animation variants for the content elements
+ */
+const contentVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      duration: 0.5,
+      delay: 0.3
+    }
+  }
+};
+
+/**
+ * SubliminalMaker component
+ * 
+ * Main component for creating and managing subliminal audio.
+ * Provides a tabbed interface for creating new subliminals and viewing saved ones.
+ */
 export default function SubliminalMaker() {
   const t = useI18n();
-  const [activeTab, setActiveTab] = useState("create");
+  const [activeTab, setActiveTab] = useState<TabValue>('create');
   const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
-  const [useRecordedAudio, setUseRecordedAudio] = useState(false);
+  const [isUsingRecordedAudio, setIsUsingRecordedAudio] = useState(false);
 
-  const handleRecordingComplete = (audioBlob: Blob) => {
+  /**
+   * Handles the completion of audio recording
+   * @param audioBlob - The recorded audio blob
+   */
+  const handleRecordingComplete = useCallback((audioBlob: Blob) => {
     setRecordedAudio(audioBlob);
-  };
+  }, []);
 
-  const toggleUseRecordedAudio = () => {
-    setUseRecordedAudio(!useRecordedAudio);
-  };
+  /**
+   * Toggles the use of recorded audio
+   */
+  const toggleUseRecordedAudio = useCallback(() => {
+    setIsUsingRecordedAudio(prev => !prev);
+  }, []);
 
   return (
     <SubliminalProvider>
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
+      <motion.div 
+        className="max-w-4xl mx-auto"
+        initial="hidden"
+        animate="visible"
+        variants={contentVariants}
+      >
+        <motion.header 
+          className="mb-8"
+          variants={headerVariants}
+        >
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-5xl font-black text-black tracking-tight">
-              <span className="bg-pink-500 text-white px-4 py-2 rotate-1 inline-block transform">
+            <motion.h1 
+              className="text-5xl font-black text-black tracking-tight"
+              variants={headerVariants}
+            >
+              <motion.span 
+                className="bg-pink-500 text-white px-4 py-2 rotate-1 inline-block transform"
+                variants={logoVariants}
+                whileHover={{ scale: 1.05, rotate: 2 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 LUM
-              </span>
-              <span className="bg-blue-500 text-white px-4 py-2 -rotate-1 inline-block transform ml-2">
+              </motion.span>
+              <motion.span 
+                className="bg-blue-500 text-white px-4 py-2 -rotate-1 inline-block transform ml-2"
+                variants={logoVariants}
+                whileHover={{ scale: 1.05, rotate: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 IO
-              </span>
-            </h1>
-            <LocaleSwitcher />
+              </motion.span>
+            </motion.h1>
+            <motion.div
+              variants={logoVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <LocaleSwitcher />
+            </motion.div>
           </div>
-          <p className="text-xl font-bold text-gray-700 border-b-4 border-black pb-2">
+          <motion.p 
+            className="text-xl font-bold text-gray-700 border-b-4 border-black pb-2"
+            variants={headerVariants}
+          >
             {t("subliminal-maker.program-mind")}
-          </p>
-        </header>
+          </motion.p>
+        </motion.header>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 mb-6 w-full">
-            <TabsTrigger
-              value="create"
-              className="text-xl font-bold border-4 border-black bg-yellow-300 hover:bg-yellow-400 data-[state=active]:bg-yellow-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-            >
-              {t("subliminal-maker.create-new")}
-            </TabsTrigger>
-            <TabsTrigger
-              value="saved"
-              className="text-xl font-bold border-4 border-black bg-green-300 hover:bg-green-400 data-[state=active]:bg-green-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-            >
-              {t("subliminal-maker.saved")}
-            </TabsTrigger>
-          </TabsList>
+        <motion.div
+          variants={contentVariants}
+        >
+          <Tabs 
+            value={activeTab} 
+            onValueChange={(value) => setActiveTab(value as TabValue)} 
+            className="w-full"
+            aria-label={t('subliminal-maker.title')}
+          >
+            <TabsList className="grid grid-cols-2 mb-6 w-full">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <TabsTrigger
+                  value="create"
+                  className="text-xl font-bold border-4 border-black bg-yellow-300 hover:bg-yellow-400 data-[state=active]:bg-yellow-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                >
+                  {t("subliminal-maker.create-new")}
+                </TabsTrigger>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <TabsTrigger
+                  value="saved"
+                  className="text-xl font-bold border-4 border-black bg-green-300 hover:bg-green-400 data-[state=active]:bg-green-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                >
+                  {t("subliminal-maker.saved")}
+                </TabsTrigger>
+              </motion.div>
+            </TabsList>
 
-          <TabsContent value="create" className="space-y-8">
-            <AffirmationSelector />
+            <TabsContent value="create" className="space-y-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AffirmationSelector />
+              </motion.div>
 
-            <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+              </motion.div>
 
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="use-recorded-audio"
-                checked={useRecordedAudio}
-                onChange={toggleUseRecordedAudio}
-                className="h-5 w-5 border-2 border-black"
-                disabled={!recordedAudio}
-              />
-              <label htmlFor="use-recorded-audio" className="font-bold">
-                {t("subliminal-maker.use-recorded-audio")}
-              </label>
-            </div>
+              <motion.div 
+                className="flex items-center space-x-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <input
+                  type="checkbox"
+                  id="use-recorded-audio"
+                  checked={isUsingRecordedAudio}
+                  onChange={toggleUseRecordedAudio}
+                  className="h-5 w-5 border-2 border-black"
+                  disabled={!recordedAudio}
+                  aria-describedby="use-recorded-audio-description"
+                />
+                <label 
+                  htmlFor="use-recorded-audio" 
+                  className="font-bold"
+                  id="use-recorded-audio-description"
+                >
+                  {t("subliminal-maker.use-recorded-audio")}
+                </label>
+              </motion.div>
 
-            <MusicSelector />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <MusicSelector />
+              </motion.div>
 
-            <AudioPlayer />
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <AudioPlayer />
+              </motion.div>
 
-            <SaveControls />
-          </TabsContent>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <SaveControls />
+              </motion.div>
+            </TabsContent>
 
-          <TabsContent value="saved" className="space-y-6">
-            <SavedSubliminalsList />
-          </TabsContent>
-        </Tabs>
-      </div>
+            <TabsContent value="saved" className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <SavedSubliminalsList />
+              </motion.div>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+      </motion.div>
     </SubliminalProvider>
   );
 }
