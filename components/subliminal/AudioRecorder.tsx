@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { Mic, Square, Play, Pause, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/locales/client";
-import { useSubliminalStore } from "@/lib/state/subliminal-store";
+import { useSubliminalStore } from "@/lib/state/SubliminalStore";
+import { BreathingDialog } from "./BreathingDialog";
 
 interface AudioRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
@@ -16,14 +17,16 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasRecording, setHasRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [showBreathingDialog, setShowBreathingDialog] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Get the setRecordedAudio function from the store
+  // Get the setRecordedAudio function and selected affirmations from the store
   const setRecordedAudio = useSubliminalStore((state) => state.setRecordedAudio);
+  const customAffirmations = useSubliminalStore((state) => state.customAffirmations);
 
   const startRecording = async () => {
     try {
@@ -151,7 +154,7 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
       <div className="flex flex-col items-center space-y-4">
         {!hasRecording && !isRecording && (
           <Button
-            onClick={startRecording}
+            onClick={() => setShowBreathingDialog(true)}
             className="bg-red-500 hover:bg-red-600 text-white border-4 border-black px-6 py-3 font-bold text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform"
           >
             <Mic className="mr-2" />
@@ -159,7 +162,7 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
           </Button>
         )}
         
-        {isRecording && (
+        {isRecording && !showBreathingDialog && (
           <div className="flex flex-col items-center space-y-4">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
@@ -168,7 +171,7 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
             
             <Button
               onClick={stopRecording}
-              className="bg-gray-500 hover:bg-gray-600 text-white border-4 border-black px-6 py-3 font-bold text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform"
+              className="bg-red-500 hover:bg-red-600 text-white border-4 border-black px-6 py-3 font-bold text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform"
             >
               <Square className="mr-2" />
               {t("subliminal-maker.stop-recording")}
@@ -196,6 +199,19 @@ export function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
           </div>
         )}
       </div>
+      
+      {showBreathingDialog && (
+        <BreathingDialog
+          currentAffirmations={customAffirmations.split("\n").filter(a => a.trim())}
+          onStartRecording={() => {
+            startRecording();
+          }}
+          onClose={() => {
+            stopRecording();
+            setShowBreathingDialog(false);
+          }}
+        />
+      )}
     </div>
   );
 } 

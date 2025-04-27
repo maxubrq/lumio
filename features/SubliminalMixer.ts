@@ -16,6 +16,8 @@ export interface SubliminalMixerOptions {
   voiceVolumeDb?: number;
   /** Initial voice playback‑rate multiplier (default 1.4). */
   voiceRate?: number;
+  /** Initial music channel volume in dB (default 0). */
+  musicVolumeDb?: number;
 }
 
 export interface SubliminalMixerCallbacks {
@@ -30,7 +32,8 @@ export interface SubliminalMixerCallbacks {
 }
 
 /** Convenience type for all constructor params */
-export type SubliminalMixerParams = SubliminalMixerOptions & SubliminalMixerCallbacks;
+export type SubliminalMixerParams = SubliminalMixerOptions &
+  SubliminalMixerCallbacks;
 
 /** Return type when stopRecording() resolves */
 export interface RecordingResult {
@@ -60,6 +63,7 @@ export default class SubliminalMixer extends EventTarget {
 
   /** Processing nodes */
   private voiceGain!: Tone.Gain; // created in constructor
+  private musicGain!: Tone.Gain; // created in constructor
   private recorder!: Tone.Recorder;
 
   /** Flags */
@@ -67,9 +71,12 @@ export default class SubliminalMixer extends EventTarget {
   private recording = false;
 
   /** Constructor options */
-  private opts: Required<Pick<SubliminalMixerOptions, "voiceVolumeDb" | "voiceRate">> = {
+  private opts: Required<
+    Pick<SubliminalMixerOptions, "voiceVolumeDb" | "voiceRate" | "musicVolumeDb">
+  > = {
     voiceVolumeDb: -18,
     voiceRate: 1.4,
+    musicVolumeDb: 0,
   } as const;
 
   /** Callbacks */
@@ -78,27 +85,43 @@ export default class SubliminalMixer extends EventTarget {
   constructor(params: SubliminalMixerParams = {}) {
     super();
 
-    const { voiceVolumeDb, voiceRate, onReady, onStart, onStop, onRecordingFinished, musicSrc, voiceSrc } = params;
+    const {
+      voiceVolumeDb,
+      voiceRate,
+      onReady,
+      onStart,
+      onStop,
+      onRecordingFinished,
+      musicSrc,
+      voiceSrc,
+      musicVolumeDb,
+    } = params;
 
     if (voiceVolumeDb !== undefined) this.opts.voiceVolumeDb = voiceVolumeDb;
-    if (voiceRate      !== undefined) this.opts.voiceRate      = voiceRate;
-
+    if (voiceRate !== undefined) this.opts.voiceRate = voiceRate;
+    if (musicVolumeDb !== undefined) this.opts.musicVolumeDb = musicVolumeDb;
     this.cb = { onReady, onStart, onStop, onRecordingFinished };
 
     // graph: voicePlayer -> gain -> dest/recorder
-    this.voiceGain = new Tone.Gain(Tone.dbToGain(this.opts.voiceVolumeDb)).toDestination();
-    this.recorder  = new Tone.Recorder();
-    this.voiceGain.connect(this.recorder);
+    this.voiceGain = new Tone.Gain(
+      Tone.dbToGain(this.opts.voiceVolumeDb)
+    ).toDestination();
 
-    if (musicSrc)  this.loadMusic(musicSrc);
-    if (voiceSrc)  this.loadVoice(voiceSrc);
+    this.musicGain = new Tone.Gain(1).toDestination();
+    this.recorder = new Tone.Recorder();
+    this.voiceGain.connect(this.recorder);
+    this.musicGain.connect(this.recorder);
+
+    if (musicSrc) this.loadMusic(musicSrc);
+    if (voiceSrc) this.loadVoice(voiceSrc);
   }
 
   /********************
    * Loader helpers   *
    ********************/
   private async makePlayer(source: string | Blob | File): Promise<Tone.Player> {
-    const url = typeof source === "string" ? source : URL.createObjectURL(source);
+    const url =
+      typeof source === "string" ? source : URL.createObjectURL(source);
     const player = new Tone.Player(url, () => {
       // revoke object url after loading to free memory
       if (typeof source !== "string") URL.revokeObjectURL(url);
@@ -116,8 +139,7 @@ export default class SubliminalMixer extends EventTarget {
     this.musicPlayer = await this.makePlayer(src);
     this.musicPlayer.autostart = false;
     this.musicPlayer.loop = false;
-    this.musicPlayer.toDestination();
-    this.musicPlayer.connect(this.recorder);
+    this.musicPlayer.connect(this.musicGain);
     this.dispatchEvent(new Event("ready"));
     this.cb.onReady?.();
   }
@@ -153,9 +175,28 @@ export default class SubliminalMixer extends EventTarget {
     if (this.voicePlayer) this.voicePlayer.playbackRate = rate;
   }
 
+  /** Set music channel volume in dB (negative for quieter). */
+  setMusicVolume(db: number): void {
+    this.opts.musicVolumeDb = db;
+    this.musicGain.gain.rampTo(Tone.dbToGain(db), 0.05);
+  }
+
   /** Enable/disable voice looping (music stays linear). */
   toggleLoop(enable = true): void {
     if (this.voicePlayer) this.voicePlayer.loop = enable;
+  }
+
+  /** Mute music and play only the voice – handy for previewing affirmations. */
+  async soloVoice(): Promise<void> {
+    if (!this.voicePlayer) throw new Error("Voice not loaded.");
+    await Tone.start();
+    this.musicGain.gain.rampTo(0, 0.05); // mute background
+    this.voicePlayer.start();
+  }
+
+  /** Bring the music back (call after soloVoice). */
+  unsoloVoice(): void {
+    this.musicGain.gain.rampTo(1, 0.05); // restore volume
   }
 
   /********************
@@ -212,7 +253,7 @@ export default class SubliminalMixer extends EventTarget {
       download: (filename = "subliminal.wav") => {
         // Create a download link and trigger it
         const url = URL.createObjectURL(rec);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);

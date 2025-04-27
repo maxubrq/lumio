@@ -3,8 +3,8 @@
 import { FileText } from "lucide-react";
 import { AFFIRMATION_TEMPLATES } from "./constants";
 import { useI18n, useCurrentLocale } from "@/locales/client";
-import { useSubliminalStore } from "@/lib/state/subliminal-store";
-import type { SubliminalState } from "@/lib/state/subliminal-store";
+import { useSubliminalStore } from "@/lib/state/SubliminalStore";
+import type { SubliminalState } from "@/lib/state/SubliminalStore";
 import { memo } from "react";
 
 interface AffirmationSelectorProps {

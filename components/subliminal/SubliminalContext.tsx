@@ -1,6 +1,6 @@
 'use client';
 
-import { useSubliminalStore } from '@/lib/state/subliminal-store'
+import { useSubliminalStore } from '@/lib/state/SubliminalStore'
 import { type ReactNode } from 'react'
 
 interface SubliminalProviderProps {

@@ -6,15 +6,15 @@ import { motion } from "motion/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AffirmationSelector } from "./subliminal/AffirmationSelector";
 import { MusicSelector } from "./subliminal/MusicSelector";
-import { AudioPlayer } from "./subliminal/AudioPlayer";
 import { SaveControls } from "./subliminal/SaveControls";
 import { SavedSubliminalsList } from "./subliminal/SavedSubliminalsList";
 import { AudioRecorder } from "./subliminal/AudioRecorder";
 import { MixController } from "./subliminal/MixController";
+import { Preview } from "./subliminal/Preview";
 import { useI18n } from "@/locales/client";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { SubliminalProvider } from "./subliminal/SubliminalContext";
-import { useSubliminalStore } from "@/lib/state/subliminal-store";
+import { useSubliminalStore } from "@/lib/state/SubliminalStore";
 import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 import { toast } from "sonner";
@@ -79,8 +79,6 @@ const contentVariants = {
 export default function SubliminalMaker() {
   const t = useI18n();
   const [activeTab, setActiveTab] = useState<TabValue>('create');
-  const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
-  const [isUsingRecordedAudio, setIsUsingRecordedAudio] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   
   // Get the mixAudio function and values from the store
@@ -91,17 +89,10 @@ export default function SubliminalMaker() {
 
   /**
    * Handles the completion of audio recording
-   * @param audioBlob - The recorded audio blob
    */
-  const handleRecordingComplete = useCallback((audioBlob: Blob) => {
-    setRecordedAudio(audioBlob);
-  }, []);
-
-  /**
-   * Toggles the use of recorded audio
-   */
-  const toggleUseRecordedAudio = useCallback(() => {
-    setIsUsingRecordedAudio(prev => !prev);
+  const handleRecordingComplete = useCallback(() => {
+    // The AudioRecorder component already updates the store directly
+    // No need to set local state anymore
   }, []);
   
   /**
@@ -231,36 +222,20 @@ export default function SubliminalMaker() {
                 <AudioRecorder onRecordingComplete={handleRecordingComplete} />
               </motion.div>
 
-              <motion.div 
-                className="flex items-center space-x-2"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <input
-                  type="checkbox"
-                  id="use-recorded-audio"
-                  checked={isUsingRecordedAudio}
-                  onChange={toggleUseRecordedAudio}
-                  className="h-5 w-5 border-2 border-black"
-                  disabled={!recordedAudio}
-                  aria-describedby="use-recorded-audio-description"
-                />
-                <label 
-                  htmlFor="use-recorded-audio" 
-                  className="font-bold"
-                  id="use-recorded-audio-description"
-                >
-                  {t("subliminal-maker.use-recorded-audio")}
-                </label>
-              </motion.div>
-
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
                 <MusicSelector previewDuration={30} />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <Preview />
               </motion.div>
               
               <motion.div
@@ -271,6 +246,7 @@ export default function SubliminalMaker() {
                 <MixController 
                   onGainChange={(value) => useSubliminalStore.getState().mixAudio(value, undefined)}
                   onSpeedChange={(value) => useSubliminalStore.getState().mixAudio(undefined, value)}
+                  onMusicGainChange={(value) => useSubliminalStore.getState().mixAudio(undefined, undefined, value)}
                 />
               </motion.div>
               
@@ -288,14 +264,6 @@ export default function SubliminalMaker() {
                   <Wand2 className="mr-2" />
                   {isProcessing ? t("subliminal-maker.processing") : t("subliminal-maker.create-subliminal")}
                 </Button>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-              >
-                <AudioPlayer />
               </motion.div>
 
               <motion.div

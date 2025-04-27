@@ -54,7 +54,7 @@ All state stores live in `/lib/state/*` and are tree-shakeable.
 ---
 
 ### Motion & Visual Effects  
-- **Framer-Motion** as first choice; **Anime.js / GSAP** for timeline-heavy sequences.  
+- **Motion (import {motion} from 'motion/react') the separate motion libs from Framer-Motion** as first choice; **Anime.js / GSAP** for timeline-heavy sequences.  
 - Motion variants co-located with components (`component.motion.ts`).  
 - Respect `prefers-reduced-motion`; provide static fallback frames.  
 - **Three.js + @react-three/fiber** for 3-D scenes; load heavy assets lazily with `Suspense` and `useGLTF`.  
@@ -76,7 +76,7 @@ All state stores live in `/lib/state/*` and are tree-shakeable.
 - All interactive elements keyboard-reachable and focus-visible.  
 - Maintain color contrast ≥ WCAG AA; test with Storybook a11y addon.  
 - Announce route changes with `next/router` + `aria-live` regions.  
-
+- Prefer pnpm over npm
 ---
 
 ### Testing & Quality Gate  

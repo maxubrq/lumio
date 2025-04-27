@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/locales/client";
-import { useSubliminalStore } from "@/lib/state/subliminal-store";
-import type { SubliminalState } from "@/lib/state/subliminal-store";
+import { useSubliminalStore } from "@/lib/state/SubliminalStore";
+import type { SubliminalState } from "@/lib/state/SubliminalStore";
 import type { SavedSubliminal } from './types';
 import { memo } from "react";
 

@@ -3,8 +3,8 @@
 import { Save, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/locales/client";
-import { useSubliminalStore } from "@/lib/state/subliminal-store";
-import type { SubliminalState } from "@/lib/state/subliminal-store";
+import { useSubliminalStore } from "@/lib/state/SubliminalStore";
+import type { SubliminalState } from "@/lib/state/SubliminalStore";
 import { memo, useState, useCallback } from "react";
 
 interface SaveControlsProps {

@@ -3,8 +3,8 @@
 import { Music } from "lucide-react";
 import { MUSIC_TRACKS } from "./constants";
 import { useI18n } from "@/locales/client";
-import { useSubliminalStore } from "@/lib/state/subliminal-store";
-import type { SubliminalState } from "@/lib/state/subliminal-store";
+import { useSubliminalStore } from "@/lib/state/SubliminalStore";
+import type { SubliminalState } from "@/lib/state/SubliminalStore";
 import { memo, useEffect, useRef, useState } from "react";
 
 interface MusicSelectorProps {
